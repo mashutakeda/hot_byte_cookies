@@ -1,0 +1,96 @@
+from datetime import datetime
+from prettytable import PrettyTable
+import pandas as pd
+import numpy as np
+
+# individual prices for cookies
+prices = ['Sugar', 1.00, 'Chocolate', 1.50, 'Peanut', 1.75]
+
+# menu options
+menu = {  'Delicious Duo' : {'Sugar' : 3, 'Chocolate' : 3, 'Peanut' : 0 }, 
+                   'SixP' : {'Sugar' : 2, 'Chocolate' : 2, 'Peanut' : 2 }, 
+                  'Sugar' : {'Sugar' : 6, 'Chocolate' : 0, 'Peanut' : 0 }}
+
+# inventory
+stock = {'Sugar' : 35, 'Chocolate' : 35, 'Peanut' : 35}
+
+# order numbers
+orderNum = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
+
+orders = {}
+
+#----------------------current time
+now = datetime.now()
+current_time = now.strftime("%D %H:%M:%S")
+
+#----------------------recordOrder
+def recordOrder(item, count):
+    global total
+    ind_cost = getMenuPrice(item, count)
+    total = ind_cost + total
+    orders["Order"+str(orderNum[i])] = {"item":item, "count":count, "subtotal":round(ind_cost,2), "time": current_time, "total":(round(total*1.0625,2))}
+    return orders
+# ------------------invUpdate
+def inventoryUpdate(item, count):
+    updatedInv = {key: stock[key] - (menu[item].get(key, 0))*count for key in stock}
+    return updatedInv
+#-------------------invCheck
+def inventoryCheck(count):
+    listA = []
+    for x in menu[item]:
+        if int(menu[item][x]) != 0:
+            listA.append(int(stock[x] / menu[item][x]))
+    num_of_orders = min(listA)
+
+    if num_of_orders == 0:
+        can_buy_yn = False
+        print("I'm sorry,",item, "is out of stock.")
+        print
+    elif num_of_orders < count:
+        can_buy_yn = False
+        print("Sorry, you can only order", str(num_of_orders), "packs of", str(item))
+    elif num_of_orders >= count:
+        return ("")
+    
+
+#----------------------getCookiePrice
+def getCookiePrice(cookie):
+    return prices[prices.index(cookie)+1]
+
+#----------------------getMenuPrice
+def getMenuPrice(item, count):
+    menuPrice = 0
+    for x in menu[item]:
+        menuPrice = menuPrice + getCookiePrice(x) * menu[item][x]
+    return menuPrice * count
+
+# ------------------menutable
+menutable = PrettyTable()
+menutable.field_names = ["Menu Items", "Sugar Cookie", "Chocolate Chip Cookie", "Peanut Butter Cookie", "Total Item Price"]
+
+for x in menu.keys():
+    menutable.add_row([x, menu[x]['Sugar'],menu[x]['Chocolate'], menu[x]['Peanut'], getMenuPrice(x,1)])
+print(menutable)
+
+#-------------------main
+i = 0
+total = 0
+orderFinished = False
+can_buy_yn = True
+
+
+while orderFinished == False and can_buy_yn == True:
+    item = input("Enter the item you want to buy: ")
+    count = int(input("How many? "))
+    a = inventoryCheck(count)
+    a
+    finished_or_not = input("Would that be all? y/n ")
+    if finished_or_not == "y":
+        orderFinished = True
+
+    if a == "":
+        orders.update(recordOrder(item, count))
+        stock.update(inventoryUpdate(item, count))
+    i = i + 1
+
+print(orders)
